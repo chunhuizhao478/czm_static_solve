@@ -38,23 +38,15 @@ SlipWeakeningMaterial::computeInterfaceTractionAndDerivatives()
    //updated local normal traction
    Real tau_n = 0;
   
-   //global tangential traction
-   Real T1_o_global = std::norm(_stress[_qp] * _normals[_qp] - _stress[_qp] * _normals[_qp] * _normals[_qp] * _normals[_qp]);
-   
-   //global normal traction
-   Real T2_o_global = _stress[_qp] * _normals[_qp] * _normals[_qp];
+   //Local Init Stress
+    RankTwoTensor sts_init_local = _rot[_qp].transpose() * _stress[_qp] * _rot[_qp];
+    RealVectorValue local_normal(1.0,0.0,0.0);
 
-   //global traction vector
-   RealVectorValue Tglobal(T1_o_global,T2_o_global,0.0);
+    //Local Traction
+    RealVectorValue traction_local =  sts_init_local * local_normal;
 
-   //local traction vector
-   RealVectorValue Tlocal = _rot[_qp].transpose() * Tglobal;
-   
-   //local tangential traction
-   Real T1_o = Tlocal(1);
-
-   //local normal traction
-   Real T2_o = Tlocal(0);
+    Real T1_o = abs(traction_local(1)); 
+    Real T2_o = abs(traction_local(0)); 
   
    //Compute fault traction
    if ( T2_o < 0 ){
